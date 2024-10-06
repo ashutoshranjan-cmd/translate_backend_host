@@ -266,40 +266,45 @@ const verifyOtp = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+const updatePassword = async (req, res) => {
+  try {
+    const { otpVal, newPassword } = req.body;
 
-const updatePassword = async(req,res)=>{
+    // Step 1: Verify OTP
+    const otpDoc = await Otp.findOne({ otp: otpVal });
 
-    const email = otpStore['useremail']
-
-    const {newPassword} = req.body;
-    try {
-        // Find the user by email
-        const user = await User.findOne({ email });
-        // if (!user) {
-        //     return res.status(404).json({ message: 'User not found' });
-        // }
-
-        // Check if the current password matches
-        // const isMatch = await bcrypt.compare(currentPassword, user.password);
-        // if (!isMatch) {
-        //     return res.status(400).json({ message: 'Current password is incorrect' });
-        // }
-
-        // Hash the new password
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        
-        // Update the password
-        user.password = hashedNewPassword;
-        await user.save();
-        otpStore['useremail'] ="";
-        otpStore['userotp'] = "";
-
-        res.status(200).json({ message: 'Password updated successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+    if (!otpDoc) {
+      return res.status(400).json({ message: 'Invalid OTP' });
     }
-}
+
+    // Check if OTP is expired
+    if (otpDoc.otpExpires < Date.now()) {
+      return res.status(400).json({ message: 'OTP expired' });
+    }
+
+    // Step 2: Find the user using the email from the OTP document
+    const user = await User.findOne({ email: otpDoc.email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Step 3: Hash the new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Step 4: Update the user's password
+    user.password = hashedNewPassword;
+    await user.save();
+
+    // Step 5: Remove the OTP from the database (optional, for cleanup)
+    await Otp.deleteOne({ _id: otpDoc._id });
+
+    return res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Error in updatePassword:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 module.exports = { signupUser, loginUser,deleteUser,forgetPassword,verifyOtp,updatePassword };
 
