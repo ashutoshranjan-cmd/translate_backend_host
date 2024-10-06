@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/users',signupRoutes)
 app.use('/payment',paymentRoutes);
-const cors = require('cors');
+
 
 app.use(cors({
   origin: 'https://translate-frontend-host.vercel.app/', // Correct origin without trailing slash
