@@ -10,7 +10,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/users',signupRoutes)
 app.use('/payment',paymentRoutes);
-app.use(cors())
+app.use(cors({
+  origin: 'https://translate-frontend-host-98tb1u4ae-ashutoshranjan-cmds-projects.vercel.app/', // specify the allowed origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // specify the allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // specify allowed headers
+}));
 // app.get('/',(req,res)=>{
 
 //     res.send("The server is working ")
