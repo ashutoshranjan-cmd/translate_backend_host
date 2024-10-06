@@ -16,7 +16,7 @@ app.use(cors({
   origin: 'https://translate-frontend-host.vercel.app/', // Correct origin without trailing slash
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-  credentials: true // If you're using cookies or authorization headers, set this to true
+  credentials: true // If you're using cookies or authorization headers, set this to tru
 }));
 
 // app.get('/',(req,res)=>{
